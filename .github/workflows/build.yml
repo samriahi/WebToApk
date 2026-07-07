@@ -4,6 +4,15 @@ on:
   push:
     branches: [ main ]
   workflow_dispatch:
+    inputs:
+      app_name:
+        description: "App Name"
+        required: true
+        default: "My App"
+      website_url:
+        description: "Website URL"
+        required: true
+        default: "https://example.com"
 
 jobs:
   build:
@@ -19,6 +28,19 @@ jobs:
 
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
+
+      - name: Update app_name and website_url in strings.xml
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          APP_NAME="${{ github.event.inputs.app_name }}"
+          WEBSITE_URL="${{ github.event.inputs.website_url }}"
+          
+          # Escape special characters for sed
+          ESCAPED_APP_NAME=$(echo "$APP_NAME" | sed 's/[\&/\]/\\&/g')
+          ESCAPED_WEBSITE_URL=$(echo "$WEBSITE_URL" | sed 's/[\&/\]/\\&/g')
+
+          sed -i "s|<string name=\"app_name\">.*</string>|<string name=\"app_name\">$ESCAPED_APP_NAME</string>|g" app/src/main/res/values/strings.xml
+          sed -i "s|<string name=\"website_url\">.*</string>|<string name=\"website_url\">$ESCAPED_WEBSITE_URL</string>|g" app/src/main/res/values/strings.xml
 
       - name: Build Debug APK
         run: ./gradlew assembleDebug
