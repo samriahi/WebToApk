@@ -13,6 +13,10 @@ on:
         description: "Website URL"
         required: true
         default: "https://example.com"
+      logo_url:
+        description: "Logo URL (direct link to PNG/JPG icon)"
+        required: false
+        default: ""
 
 jobs:
   build:
@@ -40,7 +44,26 @@ jobs:
           ESCAPED_WEBSITE_URL=$(echo "$WEBSITE_URL" | sed 's/[\&/\]/\\&/g')
 
           sed -i "s|<string name=\"app_name\">.*</string>|<string name=\"app_name\">$ESCAPED_APP_NAME</string>|g" app/src/main/res/values/strings.xml
-          sed -i "s|<string name=\"website_url\">.*</string>|<string name=\"website_url\">$ESCAPED_WEBSITE_URL</string>|g" app/src/main/res/values/strings.xml
+          sed -i "s|<string name="website_url">.*</string>|<string name="website_url">$ESCAPED_WEBSITE_URL</string>|g" app/src/main/res/values/strings.xml
+
+      - name: Download and set app logo
+        if: github.event_name == 'workflow_dispatch' && github.event.inputs.logo_url != ''
+        run: |
+          LOGO_URL="${{ github.event.inputs.logo_url }}"
+          
+          # Create drawable directory if it doesn't exist
+          mkdir -p app/src/main/res/drawable
+          
+          # Download the logo image
+          curl -L -o app/src/main/res/drawable/logo.png "$LOGO_URL"
+          
+          # Create mipmap-xxxhdpi directory if it doesn't exist
+          mkdir -p app/src/main/res/mipmap-xxxhdpi
+          
+          # Copy to mipmap-xxxhdpi as ic_launcher.png for best practice
+          cp app/src/main/res/drawable/logo.png app/src/main/res/mipmap-xxxhdpi/ic_launcher.png
+          
+          echo "Logo downloaded and placed successfully"
 
       - name: Build Debug APK
         run: ./gradlew assembleDebug
