@@ -11,6 +11,7 @@ This project wraps a website inside a native Android WebView shell and uses **Gi
 1. You provide an **app name** and a **website URL** using GitHub's built-in "Run workflow" form.
 2. GitHub Actions automatically:
    - Updates the app's name and target URL
+   - (Optional) Updates the app logo if you provide a URL
    - Builds a debug APK using Gradle
    - Uploads the finished APK as a downloadable artifact
 3. You download the APK and install it on your Android phone.
@@ -45,6 +46,7 @@ In the left sidebar, click **Build APK**.
 2. Fill in the form:
    - **App Name** — the name you want displayed under the app icon (e.g. `My Cool App`)
    - **Website URL** — the full URL of the website you want to wrap (e.g. `https://example.com`)
+   - **App Logo URL (optional)** — a direct link to a PNG/JPG image you want to use as the app icon (e.g. `https://example.com/logo.png`)
 3. Click the green **Run workflow** button to confirm.
 
 ### 5. Wait for the Build
@@ -58,7 +60,10 @@ In the left sidebar, click **Build APK**.
 3. Click **app-debug** to download a `.zip` file.
 4. Unzip it — inside you'll find `app-debug.apk`.
 
-### 7. Install on Your Phone
+### 7. (Optional) Access the Packages Artifact
+- In the same **Artifacts** section you'll also see a `packages` artifact containing any generated APKs or additional packages. Download it if needed.
+
+### 8. Install on Your Phone
 1. Transfer the APK to your Android phone (via Telegram, email, USB cable, etc.).
 2. Open the APK file on your phone.
 3. If prompted, allow installation from this source:
@@ -69,9 +74,18 @@ You now have a native Android app that opens your website inside a WebView! 🎉
 
 ---
 
+## Customising the App Icon (Logo)
+
+- Prepare a logo image (PNG or JPG) and host it at a public URL.
+- In the **Run workflow** form, paste that URL into the **App Logo URL** field.
+- The workflow will download the image and automatically replace the default launcher icon with your custom logo.
+- Recommended: Use a 512×512px image for best results across devices.
+
+---
+
 ## Building Again With a Different Site
 
-You don't need to fork again. Just repeat **steps 3–7** with a new App Name and Website URL — each run produces its own APK without affecting your repo's files permanently (unless triggered by a direct push to `main`).
+You don't need to fork again. Just repeat **steps 3–8** with a new App Name, Website URL, and optional App Logo URL — each run produces its own APK without affecting your repo's files permanently (unless triggered by a direct push to `main`).
 
 ---
 
@@ -80,6 +94,7 @@ You don't need to fork again. Just repeat **steps 3–7** with a new App Name an
 - The generated app requires an internet connection to load the website (it does not download the site for offline use).
 - The website must be **publicly accessible** (e.g. deployed on Vercel, Netlify, or your own server) — `localhost` URLs won't work since the build happens on GitHub's servers.
 - This produces a **debug** APK, suitable for personal use and testing. For publishing to the Google Play Store, additional signing and release configuration is required.
+- The optional **App Logo URL** must point directly to an image file (PNG/JPG). The image will be saved as `ic_launcher.png` in the `mipmap-anydpi-v26` folder.
 
 ---
 
@@ -91,6 +106,7 @@ You don't need to fork again. Just repeat **steps 3–7** with a new App Name an
 | Build fails (red ✗) | Check the build log for errors; often caused by special characters (`&`, `"`) in the App Name or URL |
 | APK won't install | Make sure "Install unknown apps" is allowed for the app you used to open the file |
 | App opens but shows a blank/error page | Double-check the Website URL is correct and publicly reachable |
+| Logo doesn't appear | Ensure the provided URL ends directly with the image file (e.g., `logo.png`) and is publicly accessible |
 
 ---
 
