@@ -81,8 +81,41 @@ jobs:
 
           echo "Logo downloaded and resized successfully"
 
+      - name: Debug - Verify logo files
+        if: github.event_name == 'workflow_dispatch' && github.event.inputs.logo_url != ''
+        run: |
+          echo "=== Mipmap PNG files ==="
+          ls -la app/src/main/res/mipmap-*/ic_launcher*.png || echo "No mipmap PNGs found"
+          echo ""
+          echo "=== Drawable foreground ==="
+          ls -la app/src/main/res/drawable/ic_launcher_foreground.png || echo "No foreground PNG found"
+          echo ""
+          echo "=== File type check ==="
+          file app/src/main/res/mipmap-xxxhdpi/ic_launcher.png || echo "Cannot check file type"
+
+      - name: Debug - Print adaptive icon XML
+        if: github.event_name == 'workflow_dispatch' && github.event.inputs.logo_url != ''
+        run: |
+          echo "=== ic_launcher.xml ==="
+          cat app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml
+          echo ""
+          echo "=== ic_launcher_round.xml ==="
+          cat app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml
+
+      - name: Clean build
+        run: ./gradlew clean
+
       - name: Build Debug APK
         run: ./gradlew assembleDebug
+
+      - name: Debug - Inspect built APK
+        if: github.event_name == 'workflow_dispatch' && github.event.inputs.logo_url != ''
+        run: |
+          echo "=== Mipmap contents in APK ==="
+          unzip -l app/build/outputs/apk/debug/app-debug.apk | grep -i mipmap || echo "No mipmap entries found"
+          echo ""
+          echo "=== Adaptive icon XML from APK ==="
+          unzip -p app/build/outputs/apk/debug/app-debug.apk res/mipmap-anydpi-v26/ic_launcher.xml || echo "Cannot extract ic_launcher.xml from APK"
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
