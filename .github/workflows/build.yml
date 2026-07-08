@@ -54,8 +54,8 @@ jobs:
           # Install ImageMagick for image resizing
           sudo apt-get update && sudo apt-get install -y imagemagick
 
-          # Download the logo image
-          curl -L -o /tmp/logo_original.png "$LOGO_URL"
+          # Download the logo image (no forced extension to avoid format detection issues)
+          curl -L -o /tmp/logo_original "$LOGO_URL"
 
           # Resize and copy to each mipmap density directory
           declare -A sizes=(
@@ -69,13 +69,15 @@ jobs:
           for dir in "${!sizes[@]}"; do
             size=${sizes[$dir]}
             mkdir -p "app/src/main/res/$dir"
-            convert /tmp/logo_original.png -resize ${size}x${size} "app/src/main/res/$dir/ic_launcher.png"
-            convert /tmp/logo_original.png -resize ${size}x${size} "app/src/main/res/$dir/ic_launcher_round.png"
+            convert /tmp/logo_original -resize ${size}x${size} "app/src/main/res/$dir/ic_launcher.png"
+            convert /tmp/logo_original -resize ${size}x${size} "app/src/main/res/$dir/ic_launcher_round.png"
           done
 
-          # Also update drawable/logo.png for adaptive icon foreground
+          # Create padded adaptive icon foreground (108dp canvas, logo in center 66%)
+          # 108dp = 432px at xxxhdpi, center 66% = 288px
           mkdir -p app/src/main/res/drawable
-          cp /tmp/logo_original.png app/src/main/res/drawable/logo.png
+          convert /tmp/logo_original -resize 288x288 -gravity center -background none \
+            -extent 432x432 app/src/main/res/drawable/ic_launcher_foreground.png
 
           echo "Logo downloaded and resized successfully"
 
