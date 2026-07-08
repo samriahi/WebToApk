@@ -57,3 +57,9 @@ captures/
 *.p12
 *.key
 .vscode
+
+# MiMoCode
+.mimocode/
+
+# Build logs
+logs_*
