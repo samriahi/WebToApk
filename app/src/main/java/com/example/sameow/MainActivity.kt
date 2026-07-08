@@ -1,4 +1,4 @@
-package com.example.zeochat
+package com.example.sameow
 
 import android.annotation.SuppressLint
 import android.graphics.Bitmap

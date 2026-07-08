@@ -73,12 +73,6 @@ jobs:
             convert /tmp/logo_original -resize ${size}x${size} "app/src/main/res/$dir/ic_launcher_round.png"
           done
 
-          # Create padded adaptive icon foreground (108dp canvas, logo in center 66%)
-          # 108dp = 432px at xxxhdpi, center 66% = 288px
-          mkdir -p app/src/main/res/drawable
-          convert /tmp/logo_original -resize 288x288 -gravity center -background none \
-            -extent 432x432 app/src/main/res/drawable/ic_launcher_foreground.png
-
           echo "Logo downloaded and resized successfully"
 
       - name: Debug - Verify logo files
@@ -87,20 +81,8 @@ jobs:
           echo "=== Mipmap PNG files ==="
           ls -la app/src/main/res/mipmap-*/ic_launcher*.png || echo "No mipmap PNGs found"
           echo ""
-          echo "=== Drawable foreground ==="
-          ls -la app/src/main/res/drawable/ic_launcher_foreground.png || echo "No foreground PNG found"
-          echo ""
           echo "=== File type check ==="
           file app/src/main/res/mipmap-xxxhdpi/ic_launcher.png || echo "Cannot check file type"
-
-      - name: Debug - Print adaptive icon XML
-        if: github.event_name == 'workflow_dispatch' && github.event.inputs.logo_url != ''
-        run: |
-          echo "=== ic_launcher.xml ==="
-          cat app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml
-          echo ""
-          echo "=== ic_launcher_round.xml ==="
-          cat app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml
 
       - name: Clean build
         run: ./gradlew clean
@@ -113,9 +95,6 @@ jobs:
         run: |
           echo "=== Mipmap contents in APK ==="
           unzip -l app/build/outputs/apk/debug/app-debug.apk | grep -i mipmap || echo "No mipmap entries found"
-          echo ""
-          echo "=== Adaptive icon XML from APK ==="
-          unzip -p app/build/outputs/apk/debug/app-debug.apk res/mipmap-anydpi-v26/ic_launcher.xml || echo "Cannot extract ic_launcher.xml from APK"
 
       - name: Upload APK
         uses: actions/upload-artifact@v4

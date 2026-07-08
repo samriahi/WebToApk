@@ -3,13 +3,13 @@ plugins {
 }
 
 android {
-    namespace = "com.example.zeochat"
+    namespace = "com.example.sameow"
     compileSdk {
         version = release(36)
     }
 
     defaultConfig {
-        applicationId = "com.example.zeochat"
+        applicationId = "com.example.sameow"
         minSdk = 24
         targetSdk = 36
         versionCode = 1
